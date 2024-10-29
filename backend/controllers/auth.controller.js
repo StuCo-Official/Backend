@@ -6,36 +6,36 @@ export const signup = async (request, response) => {
     try {
         const { firstName, lastName, username, email, password } = request.body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
+
         // Check if valid email
         if (!emailRegex.test(email)) {
             return response.status(400).json({ error: "Invalid email format" });
         }
-        
+
         // Check if the username exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return response.status(400).json({ error: "Username is already taken" });
         }
-        
+
         // Check if the email exists
         const existingEmail = await User.findOne({ email });
         if (existingEmail) {
             return response.status(400).json({ error: "Email is already taken" });
         }
-        
+
         // Check the minimum password size
         if (password.length < 6) {
             return response.status(400).json({ error: "Password must be at least 6 letters long" });
         }
 
-        // Hash the password 
+        // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = new User({
             username: username,
-            firstName: firstName, 
+            firstName: firstName,
             lastName: lastName,
             email: email,
             password: hashedPassword,
@@ -47,8 +47,8 @@ export const signup = async (request, response) => {
             await newUser.save();
 
             return response.status(201).json({
-                _id: newUser._id, 
-                firstName: newUser.firstName, 
+                _id: newUser._id,
+                firstName: newUser.firstName,
                 lastName: newUser.lastName,
                 username: newUser.username,
                 email: newUser.email,
@@ -57,7 +57,7 @@ export const signup = async (request, response) => {
                 profileImage: newUser.profileImage,
                 coverImage: newUser.coverImage,
             });
-            
+
         } else {
             return response.status(400).json({ error: "Invalid user data" });
         }
@@ -69,20 +69,20 @@ export const signup = async (request, response) => {
 
 export const login = async (request, response) => {
     try {
-        const { username, password } = request.body;
+        const { email, password } = request.body;
 
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
         if (!user || !isPasswordCorrect) {
-            return response.status(400).json({ error: "Invalid username or password" });
+            return response.status(400).json({ error: "Invalid email or password" });
         }
 
         generateTokenAndSetCookie(user._id, response);
 
         return response.status(200).json({
-            _id: user._id, 
-            firstName: user.firstName, 
+            _id: user._id,
+            firstName: user.firstName,
             lastName: user.lastName,
             username: user.username,
             email: user.email,
