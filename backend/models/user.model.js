@@ -61,6 +61,26 @@ const userSchema = new mongoose.Schema({
             default: [],
         },
     ],
+    dob: {
+        type: String, // Consider using Date type if you want date validation and formatting
+        default: "",
+    },
+    country: {
+        type: String,
+        default: "",
+    },
+    educationLevel: {
+        type: String,
+        default: "",
+    },
+    academicYear: {
+        type: String,
+        default: "",
+    },
+    contact: {
+        type: String,
+        default: "",
+    },
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);
