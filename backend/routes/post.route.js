@@ -1,19 +1,42 @@
-import express from "express";
+// routes/post.routes.js
+import express from 'express';
 
-import { protectRoute } from "../middleware/protectRoute.js";
-import { createPost, likeUnlikePost, commentOnPost, deletePost, getAllPosts, getLikedPosts, getFollowingPosts, getUserPosts } from "../controllers/post.controller.js";
+import { protectRoute } from '../middleware/protectRoute.js';
+import {
+    createPost,
+    likeUnlikePost,
+    commentOnPost,
+    deletePost,
+    getAllPosts,
+    getLikedPosts,
+    getFollowingPosts,
+    getUserPosts,
+} from '../controllers/post.controller.js';
 
 const router = express.Router();
 
-router.get("/all", protectRoute, getAllPosts);
-router.get("/likes/:id", protectRoute, getLikedPosts);
-router.get("/following", protectRoute, getFollowingPosts);
-router.get("/user/:username", protectRoute, getUserPosts);
+// Get all posts
+router.get('/all', protectRoute, getAllPosts);
 
-router.post("/create", protectRoute, createPost);
-router.post("/like/:id", protectRoute, likeUnlikePost);
-router.post("/comment/:id", protectRoute, commentOnPost);
+// Get liked posts by user ID
+router.get('/likes/:id', protectRoute, getLikedPosts);
 
-router.delete("/:id", protectRoute, deletePost);
+// Get posts from following users
+router.get('/following', protectRoute, getFollowingPosts);
+
+// Get posts by username
+router.get('/user/:username', protectRoute, getUserPosts);
+
+// Create a new post
+router.post('/create', protectRoute, createPost);
+
+// Like or unlike a post
+router.post('/like/:id', protectRoute, likeUnlikePost);
+
+// Comment on a post
+router.post('/comment/:id', protectRoute, commentOnPost);
+
+// Delete a post
+router.delete('/:id', protectRoute, deletePost);
 
 export default router;
