@@ -71,14 +71,69 @@ export const getMessages = async (req, res) => {
 
 export const getAllChats = async (req, res) => {
 	try {
-		const senderId = req.user._id;
-		const chats = await Chat.find({ participants: senderId })
-			.select("participants updatedAt")
-			.sort({ updatedAt: -1 }); // sort by most recently updated
-		// return all chats the user is a participant of
-		return res.status(200).json(chats);
+	  const senderId = req.user._id;
+  
+	  // Aggregate chats and populate participants and latest message
+	  const chats = await Chat.aggregate([
+		// Match chats where the user is a participant
+		{ $match: { participants: senderId } },
+  
+		// Sort chats by most recent update
+		{ $sort: { updatedAt: -1 } },
+  
+		// Lookup participants details
+		{
+		  $lookup: {
+			from: "users", // Reference the 'users' collection
+			localField: "participants",
+			foreignField: "_id",
+			as: "participants",
+		  },
+		},
+  
+		// Lookup the latest message in the messages array
+		{
+		  $lookup: {
+			from: "messages", // Reference the 'messages' collection
+			let: { messageIds: "$messages" },
+			pipeline: [
+			  { $match: { $expr: { $in: ["$_id", "$$messageIds"] } } }, // Match messages within the chat
+			  { $sort: { createdAt: -1 } }, // Sort by the latest createdAt
+			  { $limit: 1 }, // Only take the latest message
+			],
+			as: "latestMessage",
+		  },
+		},
+  
+		// Unwind the latestMessage array to include a single object
+		{ $unwind: { path: "$latestMessage", preserveNullAndEmptyArrays: true } },
+  
+		// Limit fields for participants and latest message
+		{
+		  $project: {
+			participants: {
+			  _id: 1,
+			  firstName: 1,
+			  lastName: 1,
+			  username: 1,
+			  email: 1,
+			  profileImage: 1,
+			},
+			latestMessage: {
+			  _id: 1,
+			  message: 1,
+			  senderId: 1,
+			  createdAt: 1,
+			},
+			createdAt: 1,
+			updatedAt: 1,
+		  },
+		},
+	  ]);
+  
+	  return res.status(200).json(chats);
 	} catch (error) {
-		console.log("Error in getAllChats controller: ", error.message);
-		return res.status(500).json({ error: "Internal server error"});
+	  console.error("Error in getAllChats controller: ", error.message);
+	  return res.status(500).json({ error: "Internal server error" });
 	}
-}
+  };
