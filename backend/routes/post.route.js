@@ -11,6 +11,8 @@ import {
     getLikedPosts,
     getFollowingPosts,
     getUserPosts,
+    getPostById,
+    searchPosts
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
@@ -38,5 +40,11 @@ router.post('/comment/:id', protectRoute, commentOnPost);
 
 // Delete a post
 router.delete('/:id', protectRoute, deletePost);
+
+// Search posts
+router.get("/search", searchPosts);
+
+// Get a specific post by Id
+router.get("/:id", getPostById);
 
 export default router;
