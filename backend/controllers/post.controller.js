@@ -255,3 +255,72 @@ export const getUserPosts = async (request, response) => {
 		response.status(500).json({ error: "Internal server error" });
 	}
 };
+
+export const searchPosts = async (req, res) => {
+  try {
+    const { query, username, date } = req.query;
+
+    const searchCriteria = {};
+
+    // Search by title or content
+    if (query) {
+      searchCriteria.$or = [
+        { text: { $regex: query, $options: "i" } }, // Case-insensitive regex search for post text
+      ];
+    }
+
+    if (username) {
+      const user = await User.findOne({ username });
+      if (user) {
+        searchCriteria.user = user._id;
+      }
+    }
+
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      searchCriteria.createdAt = { $gte: startOfDay, $lte: endOfDay }; // Filter by written date
+    }
+
+    const posts = await Post.find(searchCriteria)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "user",
+        select: "username profileImage",
+      });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error in searchPosts controller:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getPostById = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const post = await Post.findById(id)
+        .populate({
+          path: "user",
+          select: "username profileImage",
+        })
+        .populate({
+          path: "comments.user",
+          select: "username profileImage",
+        });
+  
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+  
+      res.status(200).json(post);
+    } catch (error) {
+      console.error("Error in getPostById controller:", error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
