@@ -2,13 +2,9 @@ import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
 import Notification from '../models/notification.model.js';
 import { v2 as cloudinary } from 'cloudinary';
-
-
-
 export const createPost = async (request, response) => {
     try {
         let { text, img } = request.body;
-
         const userId = request.user._id.toString();
         const user = await User.findById(userId);
         if (!user) {
@@ -324,3 +320,29 @@ export const getPostById = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   };
+
+export const getRecentPosts = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const recentPosts = await Post.find()
+            .sort({ createdAt: -1 })
+            .skip(skip) // Skip posts from previous pages
+            .limit(limit) // Fetch only the required number of posts
+            .populate({
+                path: 'user',
+                select: '_id username profileImage educationLevel academicYear',
+            })
+            .populate({
+                path: 'comments.user',
+                select: '_id username profileImage',
+            });
+
+        res.status(200).json(recentPosts);
+    } catch (error) {
+        console.error('Error in getRecentPosts:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

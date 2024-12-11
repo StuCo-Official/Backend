@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
     },
     firstName: {
-        type: String, 
+        type: String,
         required: true,
     },
     lastName: {
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
         minLength: 6,
     },
     email: {
-        type: String, 
+        type: String,
         required: true,
         unique: true,
     },
@@ -37,13 +37,13 @@ const userSchema = new mongoose.Schema({
             ref: "User",
             default: []
         }
-    ],    
+    ],
     profileImage: {
-        type: String, 
+        type: String,
         default: "",
     },
     coverImage: {
-        type: String, 
+        type: String,
         default: "",
     },
     bio: {
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema({
         },
     ],
     dob: {
-        type: String, // Consider using Date type if you want date validation and formatting
+        type: String,
         default: "",
     },
     country: {
@@ -78,6 +78,14 @@ const userSchema = new mongoose.Schema({
         default: "",
     },
     contact: {
+        type: String,
+        default: "",
+    },
+    major: {
+        type: String,
+        default: "",
+    },
+    gpa: {
         type: String,
         default: "",
     },

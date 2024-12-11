@@ -43,19 +43,22 @@ export const signup = async (request, response) => {
 
         if (newUser) {
             // generate token
-            generateTokenAndSetCookie(newUser._id, response)
+            const token = generateTokenAndSetCookie(newUser._id, response)
             await newUser.save();
 
-            return response.status(201).json({
-                _id: newUser._id,
-                firstName: newUser.firstName,
-                lastName: newUser.lastName,
-                username: newUser.username,
-                email: newUser.email,
-                followers: newUser.followers,
-                following: newUser.following,
-                profileImage: newUser.profileImage,
-                coverImage: newUser.coverImage,
+            return response.status(200).json({
+                user: {
+                    _id: newUser._id,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    username: newUser.username,
+                    email: newUser.email,
+                    followers: newUser.followers,
+                    following: newUser.following,
+                    profileImage: newUser.profileImage,
+                    coverImage: newUser.coverImage,
+                },
+                token,
             });
 
         } else {
@@ -78,18 +81,21 @@ export const login = async (request, response) => {
             return response.status(400).json({ error: "Invalid email or password" });
         }
 
-        generateTokenAndSetCookie(user._id, response);
+        const token = generateTokenAndSetCookie(user._id, response);
 
         return response.status(200).json({
-            _id: user._id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
-            email: user.email,
-            followers: user.followers,
-            following: user.following,
-            profileImage: user.profileImage,
-            coverImage: user.coverImage,
+            user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                username: user.username,
+                email: user.email,
+                followers: user.followers,
+                following: user.following,
+                profileImage: user.profileImage,
+                coverImage: user.coverImage,
+            },
+            token,
         });
 
     } catch (error) {

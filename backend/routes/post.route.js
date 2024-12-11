@@ -12,39 +12,25 @@ import {
     getFollowingPosts,
     getUserPosts,
     getPostById,
-    searchPosts
+    searchPosts,
+    getRecentPosts
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
 
-// Get all posts
-router.get('/all', protectRoute, getAllPosts);
+// Define specific routes first
+router.get('/recent', protectRoute, getRecentPosts); // Fetch recent posts
+router.get('/all', protectRoute, getAllPosts); // Get all posts
+router.get('/likes/:id', protectRoute, getLikedPosts); // Get liked posts by user ID
+router.get('/following', protectRoute, getFollowingPosts); // Get posts from following users
+router.get('/user/:username', protectRoute, getUserPosts); // Get posts by username
+router.get('/search', protectRoute, searchPosts); // Search posts
 
-// Get liked posts by user ID
-router.get('/likes/:id', protectRoute, getLikedPosts);
-
-// Get posts from following users
-router.get('/following', protectRoute, getFollowingPosts);
-
-// Get posts by username
-router.get('/user/:username', protectRoute, getUserPosts);
-
-// Create a new post
-router.post('/create', protectRoute, createPost);
-
-// Like or unlike a post
-router.post('/like/:id', protectRoute, likeUnlikePost);
-
-// Comment on a post
-router.post('/comment/:id', protectRoute, commentOnPost);
-
-// Delete a post
-router.delete('/:id', protectRoute, deletePost);
-
-// Search posts
-router.get("/search", searchPosts);
-
-// Get a specific post by Id
-router.get("/:id", getPostById);
+// General routes
+router.post('/create', protectRoute, createPost); // Create a new post
+router.post('/like/:id', protectRoute, likeUnlikePost); // Like or unlike a post
+router.post('/comment/:id', protectRoute, commentOnPost); // Comment on a post
+router.delete('/:id', protectRoute, deletePost); // Delete a post
+router.get('/:id', protectRoute, getPostById); // Get a specific post by ID
 
 export default router;
