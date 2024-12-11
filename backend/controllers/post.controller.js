@@ -333,11 +333,11 @@ export const getRecentPosts = async (req, res) => {
             .limit(limit) // Fetch only the required number of posts
             .populate({
                 path: 'user',
-                select: '_id username profilePicture educationLevel academicYear',
+                select: '_id username profileImage educationLevel academicYear',
             })
             .populate({
                 path: 'comments.user',
-                select: '_id username profilePicture',
+                select: '_id username profileImage',
             });
 
         res.status(200).json(recentPosts);
