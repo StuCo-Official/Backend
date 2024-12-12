@@ -13,12 +13,13 @@ import {
     getUserPosts,
     getPostById,
     searchPosts,
-    getRecentPosts
+    getRecentPosts, searchPostsByContent
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
 
 // Define specific routes first
+router.get('/searchByContent', protectRoute, searchPostsByContent); //Search 10 posts by contents
 router.get('/recent', protectRoute, getRecentPosts); // Fetch recent posts
 router.get('/all', protectRoute, getAllPosts); // Get all posts
 router.get('/likes/:id', protectRoute, getLikedPosts); // Get liked posts by user ID

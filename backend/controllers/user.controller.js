@@ -192,3 +192,26 @@ export const updateUser = async (request, response) => {
         return response.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { q } = req.query; // q is the query string
+        if (!q) return res.status(400).json({ error: "No search query provided." });
+
+        // Case-insensitive regex search across username, firstName, and lastName
+        const users = await User.find({
+            $or: [
+                { username: { $regex: q, $options: "i" } },
+                { firstName: { $regex: q, $options: "i" } },
+                { lastName: { $regex: q, $options: "i" } },
+            ],
+        })
+            .select("-password") // Exclude password
+            .limit(10);
+
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error("Error in searchUsers controller:", error.message);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};

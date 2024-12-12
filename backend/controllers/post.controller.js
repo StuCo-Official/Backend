@@ -346,3 +346,28 @@ export const getRecentPosts = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+export const searchPostsByContent = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.status(400).json({ error: "No search query provided." });
+
+        // Search posts by their text content
+        const posts = await Post.find({ text: { $regex: q, $options: "i" } })
+            .sort({ createdAt: -1 }) // Sort to show recent posts first if desired
+            .limit(10) // Limit to 10 posts
+            .populate({
+                path: "user",
+                select: "-password",
+            })
+            .populate({
+                path: "comments.user",
+                select: "-password",
+            });
+
+        return res.status(200).json(posts);
+    } catch (error) {
+        console.error("Error in searchPostsByContent controller:", error.message);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
