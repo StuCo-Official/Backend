@@ -72,13 +72,13 @@ export const signup = async (request, response) => {
 
 export const login = async (request, response) => {
     try {
-        const { email, password } = request.body;
+        const { username, password } = request.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
         const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
         if (!user || !isPasswordCorrect) {
-            return response.status(400).json({ error: "Invalid email or password" });
+            return response.status(400).json({ error: "Invalid username or password" });
         }
 
         const token = generateTokenAndSetCookie(user._id, response);
